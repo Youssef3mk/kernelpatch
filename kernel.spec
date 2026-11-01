@@ -1215,7 +1215,7 @@ Patch1: patch-%{patchversion}-redhat.patch
 Patch999999: linux-kernel-test.patch
 
 # تعريف الباتشات المحلية الجديدة s.patch و g.patch
-Patch100: s.patch
+Patch100: kernel.patch
 
 
 # END OF PATCH DEFINITIONS
