@@ -1,0 +1,42 @@
+---
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/gk104.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/gk104.c
+index 5655eda52..bbeb33cd9 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/gk104.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/gk104.c
+@@ -180,6 +180,20 @@ gk104_ectx_ctor(struct nvkm_engn *engn, struct nvkm_vctx *vctx)
+ 	struct gf100_vmm_map_v0 args = { .priv = 1 };
+ 	int ret;
+ 
++	/*
++	 * Legacy video engines access their engine contexts through
++	 * non-privileged MMU requests.
++	 */
++	switch (engn->engine->subdev.type) {
++	case NVKM_ENGINE_MSPDEC:
++	case NVKM_ENGINE_MSPPP:
++	case NVKM_ENGINE_MSVLD:
++		args.priv = 0;
++		break;
++	default:
++		break;
++	}
++
+ 	ret = nvkm_vmm_get(vctx->vmm, 12, vctx->inst->size, &vctx->vma);
+ 	if (ret)
+ 		return ret;
+---
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/uchan.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/uchan.c
+index d6a87cec2..b96e84192 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/uchan.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/uchan.c
+@@ -52,7 +52,8 @@ nvkm_uchan_uevent(struct nvkm_object *object, void *argv, u32 argc, struct nvkm_
+ 
+ 	switch (args->v0.type) {
+ 	case NVIF_CHAN_EVENT_V0_NON_STALL_INTR:
+-		return nvkm_uevent_add(uevent, &runl->fifo->nonstall.event, runl->id,
++		return nvkm_uevent_add(uevent, &runl->fifo->nonstall.event,
++				runl->fifo->func->nonstall_ctor ? runl->id : 0,
+ 				       NVKM_FIFO_NONSTALL_EVENT, NULL);
+ 	case NVIF_CHAN_EVENT_V0_KILLED:
+ 		return nvkm_uevent_add(uevent, &runl->chid->event, chan->id,
+   
