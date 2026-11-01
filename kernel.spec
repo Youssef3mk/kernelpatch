@@ -8,7 +8,7 @@
 
 # Disable frame pointers
 
-%undefine _include_frame_pointers
+%undefine \_include_frame_pointers
 
 # Save default LTO flags before disabling (for use with kernel tools).
 
@@ -31,7 +31,7 @@
 %bcond_with clang_lto
 
 %if %{with clang_lto} && %{without toolchain_clang}
-{error:clang_lto requires --with toolchain_clang}
+%{error:clang_lto requires --with toolchain_clang}
 %endif
 
 # RPM macros strip everything in BUILDROOT, either with \__strip
@@ -41,16 +41,16 @@
 # and save/restore binaries we want to package as unstripped.
 
 %define buildroot_unstripped %{\_builddir}/root_unstripped
-%define buildroot_save_unstripped()
+%define buildroot_save_unstripped() 
 
-(cd %{buildroot}; cp -rav --parents -t %{buildroot_unstripped}/ %1 || true)
+(cd %{buildroot}; cp -rav --parents -t %{buildroot_unstripped}/ %1 || true) 
 
 %{nil}
-%define \__restore_unstripped_root_post
+%define \__restore_unstripped_root_post 
 
-echo "Restoring unstripped artefacts %{buildroot_unstripped} -> %{buildroot}"
+echo "Restoring unstripped artefacts %{buildroot_unstripped} -> %{buildroot}" 
 
-cp -rav %{buildroot_unstripped}/. %{buildroot}/
+cp -rav %{buildroot_unstripped}/. %{buildroot}/ 
 
 %{nil}
 
